@@ -56,6 +56,20 @@ for linkurl in scrapelist:
     data = resp.read()
     soup = BeautifulSoup(data, "lxml")
     all_links.update(get_page_links(soup))
+    
+def link_to_soup(link):
+    req = urllib.request.Request(link,None,headers)
+    resp = urllib.request.urlopen(req)
+    data = resp.read()
+    soup = BeautifulSoup(data, "lxml")
+    return soup
+def get_link_img(link):
+    print(link)
+    soup = link_to_soup(link)
+    return soup
+    
+soupify = get_link_img(list(all_links.keys())[0])
+txt = (soupify.prettify())
 '''
 client = MongoClient('localhost', 27017)
 db = client.craigslist
