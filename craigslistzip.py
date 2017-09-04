@@ -10,6 +10,8 @@ starturl = baseurl + '/search/zip'
 import pathlib
 import urllib
 from bs4 import BeautifulSoup
+from random import randint
+from time import sleep
 #from pymongo import MongoClient
 
 
@@ -68,6 +70,7 @@ def get_link_img(link,filename):
         exit
     return soup
 for k,v in all_links.items():
+    sleep(randint(10,100))
     testsoup = get_link_img(k,v)
 
 
