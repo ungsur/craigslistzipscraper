@@ -23,7 +23,9 @@ starturl = baseurl + '/search/zip'
 #set useragent and headers to fool website into thinking we're a person
 user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
 headers={'User-Agent':user_agent} 
-punc_table = str.maketrans('','',punctuation + '–' + '’' + '/' + '•')
+
+#This is the table to subsitute _ for spaces and strip out punctuation
+punc_table = str.maketrans(' ','_',punctuation + '–' + '’' + '/' + '•')
 
 
 #Converts a webpage to a soup element
