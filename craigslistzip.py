@@ -5,30 +5,35 @@ Created on Fri Aug 25 10:25:38 2017
 
 @author: rungsunan
 """
-baseurl = 'https://newyork.craigslist.org'
-starturl = baseurl + '/search/zip'
-import pathlib
-import urllib
+
+from urllib import request
 from bs4 import BeautifulSoup
+import pathlib
 from random import randint
 from time import sleep
 #from pymongo import MongoClient
 
 
+#The url we want to scrape. We seperate the base url becuase there are sub urls
+baseurl = 'https://newyork.craigslist.org'
+starturl = baseurl + '/search/zip'
+
+#set useragent and headers to fool website into thinking we're a person
 user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
 headers={'User-Agent':user_agent} 
 
-scrapelist = [starturl]
 
+
+#Converts a webpage to a soup element
 def url_to_soup(url):
-    req =  urllib.request.Request(url,None,headers)
-    resp =  urllib.request.urlopen(req)
+    req =  request.Request(url,None,headers)
+    resp = request.urlopen(req)
     data = resp.read()
     soup = BeautifulSoup(data, "lxml")
     return soup
 
-startsoup = url_to_soup(starturl)
-
+#Gets the posting links from a soup object and returns a dictionary with the
+#link as the key and the title of the posting as the value
 def get_page_links(soupobj):
     itemdict = {}
     g_data = soupobj.find_all("li",{"class":"result-row"})
@@ -37,9 +42,8 @@ def get_page_links(soupobj):
         itemdict[baseurl + linkinfo.get('href')] = linkinfo.text
     return itemdict
 
-all_links = {}
-all_links.update(get_page_links(startsoup))
-
+#takes the next link on a soup object and 
+#returns all the sublinks until the last as a list
 def get_soup_links(soup):
     templinks = []    
     while (soup):
@@ -53,32 +57,39 @@ def get_soup_links(soup):
             exit
     return templinks
 
+#Creates an images directory, and grabs the first image with the title
+#as the filename
+def get_link_img(link,filename):
+    soup = url_to_soup(link)
+    pathlib.Path('/Volumes/data/craigslist/images').mkdir(parents=True, exist_ok=True) 
+    try:
+        imagefilelink =(soup.findAll('img')[0].attrs)['src']
+        print (imagefilelink.split('/')[-1]+ "," + filename)
+        request.urlretrieve(imagefilelink, '/Volumes/data/craigslist/images/' + filename + ".jpg")
+    except:
+        print("error")
+        exit
+    return soup
+
+#scrapelist holds the urls to grab the posting links
+scrapelist = [starturl]
+
+startsoup = url_to_soup(starturl)
+
+#All_links holds the links of the craigslist postings
+all_links = {}
+all_links.update(get_page_links(startsoup))
+
 scrapelist.extend(get_soup_links(startsoup))
 
 for link in scrapelist:
     all_links.update(get_page_links(url_to_soup(link)))
 
-
-def get_link_img(link,filename):
-    soup = url_to_soup(link)
-    pathlib.Path('images').mkdir(parents=True, exist_ok=True) 
-    try:
-        imagefilelink =(soup.findAll('img')[0].attrs)['src']
-        print (imagefilelink.split('/')[-1])
-        urllib.request.urlretrieve(imagefilelink, 'images/' + filename + ".jpg")
-    except:
-        exit
-    return soup
 for k,v in all_links.items():
     sleep(randint(10,100))
-    testsoup = get_link_img(k,v)
-
+    get_link_img(k,v)
 
 '''   
-soupify = get_link_img(list(all_links.keys())[0])
-txt = (soupify.prettify())
-linksoup = get_link_img(list(all_links.keys())[0])
-
 client = MongoClient('localhost', 27017)
 db = client.craigslist
 '''
