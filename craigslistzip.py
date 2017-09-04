@@ -11,6 +11,8 @@ from bs4 import BeautifulSoup
 import pathlib
 from random import randint
 from time import sleep
+from string import punctuation
+
 #from pymongo import MongoClient
 
 
@@ -21,7 +23,7 @@ starturl = baseurl + '/search/zip'
 #set useragent and headers to fool website into thinking we're a person
 user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
 headers={'User-Agent':user_agent} 
-
+punc_table = str.maketrans('','',punctuation + '–' + '’' + '/' + '•')
 
 
 #Converts a webpage to a soup element
@@ -39,7 +41,7 @@ def get_page_links(soupobj):
     g_data = soupobj.find_all("li",{"class":"result-row"})
     for item in g_data:
         linkinfo = item.contents[3].find_all("a", {"class":"result-title hdrlnk"})[0]
-        itemdict[baseurl + linkinfo.get('href')] = linkinfo.text
+        itemdict[baseurl + linkinfo.get('href')] = linkinfo.text.translate(punc_table)
     return itemdict
 
 #takes the next link on a soup object and 
