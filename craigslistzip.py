@@ -20,6 +20,8 @@ from string import punctuation
 baseurl = 'https://newyork.craigslist.org'
 starturl = baseurl + '/search/zip'
 
+imagepath = '/Users/rungsunan/code/craigslistzipscraper/images/'
+
 #set useragent and headers to fool website into thinking we're a person
 user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
 headers={'User-Agent':user_agent} 
@@ -65,11 +67,12 @@ def get_soup_links(soup):
 #as the filename
 def get_link_img(link,filename):
     soup = url_to_soup(link)
-    pathlib.Path('/Volumes/data/craigslist/images').mkdir(parents=True, exist_ok=True) 
+    pathlib.Path(imagepath).mkdir(parents=True, exist_ok=True) 
     try:
         imagefilelink =(soup.findAll('img')[0].attrs)['src']
         print (imagefilelink.split('/')[-1]+ "," + filename)
-        request.urlretrieve(imagefilelink, '/Volumes/data/craigslist/images/' + filename + ".jpg")
+        print ( imagepath + filename + ".jpg")
+        request.urlretrieve(imagefilelink, imagepath + filename + ".jpg")
     except:
         print("error")
         exit
